@@ -4,6 +4,7 @@ var timerModule = angular.module('timer', [])
       restrict: 'EAC',
       replace: false,
       scope: {
+        timerid: "=timerid",
         interval: '=interval',
         startTimeAttr: '=startTime',
         endTimeAttr: '=endTime',
@@ -26,7 +27,20 @@ var timerModule = angular.module('timer', [])
         //supporting both "autostart" and "auto-start" as a solution for
         //backward and forward compatibility.
         $scope.autoStart = $attrs.autoStart || $attrs.autostart;
-
+        $scope.$watch('endTimeAttr', function(newVal){
+          $scope.clear();
+          $scope.start();
+        });
+        $scope.$watch('startTimeAttr', function(newVal){
+          $scope.clear();
+          $scope.start();
+        });
+        $scope.$watch('countdownattr', function(newVal){
+          $scope.countdown = newVal;
+          $scope.millis = $scope.countdown * 1000;
+          $scope.clear();
+          $scope.start();
+        });
         if ($element.html().trim().length === 0) {
           $element.append($compile('<span>{{millis}}</span>')($scope));
         } else {
