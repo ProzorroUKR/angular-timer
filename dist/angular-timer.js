@@ -1,8 +1,8 @@
 /**
- * angular-timer - v1.1.6 - 2014-07-01 7:37 AM
+ * angular-timer - v1.1.6 - 2015-01-19 1:33 PM
  * https://github.com/siddii/angular-timer
  *
- * Copyright (c) 2014 Siddique Hameed
+ * Copyright (c) 2015 Siddique Hameed
  * Licensed MIT <https://github.com/siddii/angular-timer/blob/master/LICENSE.txt>
  */
 var timerModule = angular.module('timer', [])
@@ -11,6 +11,7 @@ var timerModule = angular.module('timer', [])
       restrict: 'EAC',
       replace: false,
       scope: {
+        timerid: "=timerid",
         interval: '=interval',
         startTimeAttr: '=startTime',
         endTimeAttr: '=endTime',
@@ -33,7 +34,20 @@ var timerModule = angular.module('timer', [])
         //supporting both "autostart" and "auto-start" as a solution for
         //backward and forward compatibility.
         $scope.autoStart = $attrs.autoStart || $attrs.autostart;
-
+        $scope.$watch('endTimeAttr', function(newVal){
+          $scope.clear();
+          $scope.start();
+        });
+        $scope.$watch('startTimeAttr', function(newVal){
+          $scope.clear();
+          $scope.start();
+        });
+        $scope.$watch('countdownattr', function(newVal){
+          $scope.countdown = newVal;
+          $scope.millis = $scope.countdown * 1000;
+          $scope.clear();
+          $scope.start();
+        });
         if ($element.html().trim().length === 0) {
           $element.append($compile('<span>{{millis}}</span>')($scope));
         } else {
@@ -113,7 +127,9 @@ var timerModule = angular.module('timer', [])
         });
 
         function calculateTimeUnits() {
-
+          if ($attrs.startTime !== undefined){
+            $scope.millis = new Date() - new Date($scope.startTimeAttr);
+          }
           // compute time values based on maxTimeUnit specification
           if (!$scope.maxTimeUnit || $scope.maxTimeUnit === 'day') {
             $scope.seconds = Math.floor(($scope.millis / 1000) % 60);
@@ -158,7 +174,6 @@ var timerModule = angular.module('timer', [])
             $scope.months = Math.floor((($scope.millis / (3600000)) / 24 / 30) % 12);
             $scope.years = Math.floor(($scope.millis / (3600000)) / 24 / 365);
           }
-
           // plural - singular unit decision
           $scope.secondsS = $scope.seconds == 1 ? '' : 's';
           $scope.minutesS = $scope.minutes == 1 ? '' : 's';
